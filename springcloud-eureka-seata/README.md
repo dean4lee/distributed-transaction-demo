@@ -29,10 +29,12 @@ registry {
 
 ## 测试
 1. 启动order-service, account-service, pay-service服务
-2. curl http://localhost:8081/pay?money=30&userId=1\
+2. curl http://localhost:8081/pay?money=30&userId=1 \
 在每一服务中创建一个异常，任何一个服务出现异常后，所有的服务都会回滚
 
-[seata参数配置](https://seata.io/zh-cn/docs/user/configurations.html)
-[seata官网](https://seata.io/)
+[seata官网](https://seata.io/)\
+[seata参数配置](https://seata.io/zh-cn/docs/user/configurations.html)\
+[seata官方示例](https://github.com/seata/seata-samples)
+
 
 
