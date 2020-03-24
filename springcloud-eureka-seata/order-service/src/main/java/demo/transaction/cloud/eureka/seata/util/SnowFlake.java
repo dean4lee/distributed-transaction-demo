@@ -5,12 +5,11 @@ package demo.transaction.cloud.eureka.seata.util;
  * key为long类型，长度64位
  * 第一位为符号位，0
  * 41位时间戳
- * 5位groupid,0-31
- * 5位workid，0-31
+ * 10位workid, 0-1023
  * 12位序列号，最大位4095
  *
- * 符号位    时间戳                                     groupid  workid  序列号
- * 0        00000000000000000000000000000000000000000 0000     0000    000000000000
+ * 符号位    时间戳                                     workid  序列号
+ * 0        00000000000000000000000000000000000000000 00000000 000000000000
  */
 public final class SnowFlake {
 
@@ -18,36 +17,32 @@ public final class SnowFlake {
     private static final long START_TIME = 1583574474481L;
 
     //初始化的数据
-    private long groupId;       //groupid
-    private long workId;        //workid
+    private long workId;        //workid默认为0
     private long sequence = 0L; //序列号
     private long lastTime = -1L;//最后一次生成key的时间
 
     //占用的位数
     private static final long TIME_BIT = 41L;       //时间戳占用位数
-    private static final long GROUP_BIT = 5L;       //groupid占用位数
-    private static final long WORK_BIT = 5L;        //workid占用位数
+    private static final long WORK_BIT = 10L;       //workid占用位数
     private static final long SEQUENCE_BIT = 12L;   //序列号占用位数
 
     //左移的位数
-    private static final long WORK_LEFT = SEQUENCE_BIT;             //workid左移12位
-    private static final long GROUP_LEFT = WORK_LEFT + WORK_BIT;    //groupid左移17位
-    private static final long TIME_LEFT = GROUP_LEFT + GROUP_BIT;   //时间戳左移22位
+    private static final long WORK_LEFT = SEQUENCE_BIT;    //groupid左移12位
+    private static final long TIME_LEFT = WORK_BIT + SEQUENCE_BIT;   //时间戳左移22位
 
     //最大值，即二进制多少位1计算出的十进制
     private static final long SEQUENCE_MAX = -1L ^ (-1L << SEQUENCE_BIT);
     private static final long WORK_MAX = -1L ^ (-1L << WORK_BIT);
-    private static final long GROUP_MAX = -1L ^ (-1L << GROUP_BIT);
 
-    //初始化需要传入groupId和workId
-    public SnowFlake(long groupId, long workId) {
-        if (groupId < 0 || groupId > GROUP_MAX) {
-            throw new IllegalArgumentException("groupId Cannot be greater than " + GROUP_MAX + " and less than 0");
-        }
+    //workId默认为0，分布式需要设置不同的workId
+    public SnowFlake(){
+        this(0L);
+    }
+
+    public SnowFlake(long workId){
         if (workId < 0 || workId > WORK_MAX) {
             throw new IllegalArgumentException("workId Cannot be greater than " + WORK_MAX + " and less than 0");
         }
-        this.groupId = groupId;
         this.workId = workId;
     }
 
@@ -74,15 +69,14 @@ public final class SnowFlake {
         lastTime = currentTime;
 
         return (currentTime - START_TIME) << TIME_LEFT  //时间戳部分
-                | groupId << GROUP_LEFT                 //groupid部分
                 | workId << WORK_LEFT                   //workid部分
                 | sequence;                             //序列号部分;
     }
 
     public static void main(String[] args) throws Exception {
-       SnowFlake snowFlake = new SnowFlake(1, 1);
-       for (int i = 0; i< 100; i ++) {
-           System.out.println(snowFlake.nextKey());
-       }
+        SnowFlake snowFlake = new SnowFlake(1023);
+        for (int i = 0; i< 100; i ++) {
+            System.out.println(snowFlake.nextKey());
+        }
     }
 }

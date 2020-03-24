@@ -9,6 +9,6 @@ public class GlobalConfig {
 
     @Bean
     public SnowFlake snowFlake(){
-        return new SnowFlake(1,1);
+        return new SnowFlake(1);
     }
 }
