@@ -11,8 +11,6 @@ import org.apache.shardingsphere.transaction.core.TransactionTypeHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-
 @Service
 public class PayServiceImpl implements PayService {
 
@@ -24,6 +22,8 @@ public class PayServiceImpl implements PayService {
     @GlobalTransactional
     @Override
     public String pay(Pay pay){
+        //在调用db时设置，可以对事务类型进行切换
+        //其他服务中也需要配置
         TransactionTypeHolder.set(TransactionType.BASE);
         payDAO.insert(pay);
 
@@ -31,12 +31,8 @@ public class PayServiceImpl implements PayService {
         order.setTPayId(pay.getId());
         order.setUserId(pay.getUserId());
         orderFeign.addOrder(order);
-        try {
-            System.in.read();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        int i = 1/0;
+        //模拟异常
+//        int i = 1/0;
         return "success";
     }
 }
