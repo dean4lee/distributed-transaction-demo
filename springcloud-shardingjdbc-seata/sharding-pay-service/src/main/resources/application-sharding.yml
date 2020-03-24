@@ -1,0 +1,37 @@
+spring:
+  shardingsphere:
+    datasource:
+      names: ds0, ds1
+      ds0:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.jdbc.Driver
+        url: jdbc:mysql://192.168.211.128:3306/sharding-seata?useUnicode=true&characterEncoding=UTF-8&useSSL=false
+        username: root
+        password: root
+      ds1:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.jdbc.Driver
+        url: jdbc:mysql://192.168.211.129:3306/sharding-seata?useUnicode=true&characterEncoding=UTF-8&useSSL=false
+        username: root
+        password: root
+
+    sharding:
+      tables:
+        t_pay:
+          actual-data-nodes: ds$->{0..1}.t_pay$->{0..1}
+          key-generator:
+            column: id
+            type: SNOWFLAKE
+            props:
+              worker.id = 1
+          table-strategy:
+            inline:
+              sharding-column: id
+              algorithm-expression: t_pay$->{id % 2}
+          database-strategy:
+            inline:
+              sharding-column: user_id
+              algorithm-expression: ds$->{user_id % 2}
+    props:
+      sql.show: true
+

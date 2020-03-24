@@ -1,0 +1,20 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: sharding-pay-service
+  profiles:
+    active: sharding
+  cloud:
+    alibaba:
+      seata:
+        tx-service-group: my_test_tx_group
+
+
+logging:
+  level:
+    root: error
+    io.seata: info
+    #sharding-jdbc的sql显示日志是info级别
+    ShardingSphere-SQL: info
